@@ -2,6 +2,10 @@ module github.com/stack-labs/stack-rpc-plugins/registry/zookeeper
 
 go 1.14
 
+replace (
+	github.com/stack-labs/stack-rpc v1.0.0 => ../../../stack-rpc
+)
+
 require (
 	github.com/go-zookeeper/zk v1.0.2
 	github.com/google/uuid v1.1.2

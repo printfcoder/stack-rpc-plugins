@@ -144,7 +144,7 @@ func Request(requestURL string, connectionConfig *env.ConnectConfig, callBack *C
 			}
 			return nil, nil
 		case http.StatusNotModified:
-			log.Debug("Config Not Modified:", err)
+			log.Debugf("Config Not Modified: %s", err)
 			if callBack != nil && callBack.NotModifyCallBack != nil {
 				return nil, callBack.NotModifyCallBack()
 			}
