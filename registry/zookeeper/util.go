@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-zookeeper/zk"
-	log "github.com/stack-labs/stack-rpc/logger"
 	"github.com/stack-labs/stack-rpc/registry"
 )
 
@@ -25,7 +24,6 @@ func nodePath(domain, name, id string) string {
 	service := strings.Replace(name, "/", "-", -1)
 	node := strings.Replace(id, "/", "-", -1)
 	p := path.Join(prefixWithDomain(domain), service, node)
-	log.Infof("register path: %s", p)
 	return p
 }
 
