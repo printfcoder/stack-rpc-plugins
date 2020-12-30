@@ -1,0 +1,9 @@
+stack:
+  stackweb:
+    name: stack.web.stackweb
+    address: 127.0.0.1
+    port: 8082
+    static-dir:
+  logger:
+    name: slogrus
+    level: info
