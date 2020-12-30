@@ -3,7 +3,9 @@ stack:
     name: stack.web.stackweb
     address: 127.0.0.1
     port: 8082
+    root-path: /stack
     static-dir:
+    favicon-ico:
   logger:
     name: slogrus
     level: info
