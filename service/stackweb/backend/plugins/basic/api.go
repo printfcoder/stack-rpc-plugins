@@ -9,14 +9,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins"
 	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic/tools"
 	"github.com/stack-labs/stack-rpc/client/selector"
-	"github.com/stack-labs/stack-rpc/cmd"
 	"github.com/stack-labs/stack-rpc/pkg/metadata"
 	"github.com/stack-labs/stack-rpc/registry"
 )
 
 type api struct {
+	opts plugins.Options
 }
 
 type rpcRequest struct {
@@ -36,7 +37,7 @@ type serviceAPIDetail struct {
 }
 
 func (api *api) webServices(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := api.opts.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -60,14 +61,14 @@ func (api *api) webServices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *api) services(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := api.opts.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
 
 	for _, service := range services {
-		ss, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		ss, err := api.opts.Registry.GetService(service.Name)
 		if err != nil {
 			continue
 		}
@@ -89,7 +90,7 @@ func (api *api) services(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *api) microServices(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := api.opts.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -98,7 +99,7 @@ func (api *api) microServices(w http.ResponseWriter, r *http.Request) {
 	ret := make([]*registry.Service, 0)
 
 	for _, srv := range services {
-		temp, err := (*cmd.DefaultOptions().Registry).GetService(srv.Name)
+		temp, err := api.opts.Registry.GetService(srv.Name)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -121,7 +122,7 @@ func (api *api) microServices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := api.opts.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -131,7 +132,7 @@ func (api *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
 
 	serviceDetails := make([]*serviceAPIDetail, 0)
 	for _, service := range services {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		s, err := api.opts.Registry.GetService(service.Name)
 		if err != nil {
 			continue
 		}
@@ -153,7 +154,7 @@ func (api *api) service(w http.ResponseWriter, r *http.Request) {
 	serviceName := r.URL.Query().Get("service")
 
 	if len(serviceName) > 0 {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(serviceName)
+		s, err := api.opts.Registry.GetService(serviceName)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -172,20 +173,15 @@ func (api *api) service(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *api) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := api.opts.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
 
-	sel := selector.NewSelector(
-		selector.Registry(*cmd.DefaultOptions().Registry),
-	)
-
 	ret := make([]*registry.Service, 0)
-
 	for _, service := range services {
-		_, _ = sel.Select(service.Name, func(options *selector.SelectOptions) {
+		_, _ = api.opts.Selector.Next(service.Name, func(options *selector.SelectOptions) {
 			filter := func(services []*registry.Service) []*registry.Service {
 				for _, s := range services {
 					for _, gwN := range GatewayNamespaces {
