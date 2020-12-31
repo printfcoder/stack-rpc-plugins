@@ -5,6 +5,8 @@ import (
 	"github.com/stack-labs/stack-rpc/registry"
 )
 
+type Option func(o *Options)
+
 type Options struct {
 	// todo move all of below to runtime
 	Registry registry.Registry

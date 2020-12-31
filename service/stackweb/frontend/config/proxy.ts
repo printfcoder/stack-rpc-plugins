@@ -10,26 +10,26 @@ export default {
     '/api/': {
       target: 'https://preview.pro.ant.design',
       changeOrigin: true,
-      pathRewrite: {'^': ''},
+      pathRewrite: { '^': '' },
     },
-    '/platform': {
+    '/stackweb': {
       target: 'http://localhost:9082',
       changeOrigin: true,
-      pathRewrite: {'^': ''},
-    }
+      pathRewrite: { '^': '' },
+    },
   },
   test: {
     '/api/': {
       target: 'https://preview.pro.ant.design',
       changeOrigin: true,
-      pathRewrite: {'^': ''},
+      pathRewrite: { '^': '' },
     },
   },
   pre: {
     '/api/': {
       target: 'your pre url',
       changeOrigin: true,
-      pathRewrite: {'^': ''},
+      pathRewrite: { '^': '' },
     },
   },
 };

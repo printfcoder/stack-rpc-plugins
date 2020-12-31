@@ -1,8 +1,12 @@
 stack:
+  config:
+    hierarchy-merge: true
+    storege: false
   stackweb:
     name: stack.web.stackweb
     address: 127.0.0.1
     port: 8082
+    api-path: /api/v1
     root-path: /stack
     static-dir:
     favicon-ico:

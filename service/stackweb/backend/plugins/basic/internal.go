@@ -10,11 +10,10 @@ import (
 
 	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic/tools"
 	"github.com/stack-labs/stack-rpc/client"
-	"github.com/stack-labs/stack-rpc/config/cmd"
-	"github.com/stack-labs/stack-rpc/utils/errors"
+	"github.com/stack-labs/stack-rpc/util/errors"
 )
 
-func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
+func (a *api) rpcCall(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 	if len(rpcReq.Service) == 0 {
 		tools.WriteError(w, fmt.Errorf("Service Is Not found "))
 		return
@@ -39,7 +38,7 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultOptions().Client).NewRequest(rpcReq.Service, rpcReq.Endpoint, rpcReq.Request, client.WithContentType("application/json"))
+	req := a.rpcClient.NewRequest(rpcReq.Service, rpcReq.Endpoint, rpcReq.Request, client.WithContentType("application/json"))
 
 	var opts []client.CallOption
 
@@ -54,14 +53,14 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 	}
 
 	// remote call
-	err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, opts...)
+	err = a.rpcClient.Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
 		case 0:
 			// assuming it's totally screwed
 			ce.Code = 500
-			ce.Id = "go.micro.rpc"
+			ce.Id = "stack.rpc"
 			ce.Status = http.StatusText(500)
 			ce.Detail = "error during request: " + ce.Detail
 			w.WriteHeader(500)
