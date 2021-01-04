@@ -7,6 +7,9 @@ import (
 	cfg "github.com/stack-labs/stack-rpc/config"
 	log "github.com/stack-labs/stack-rpc/logger"
 	"github.com/stack-labs/stack-rpc/web"
+
+	_ "github.com/stack-labs/stack-rpc-plugins/logger/logrus"
+	_ "github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic"
 )
 
 type config struct {
@@ -60,7 +63,7 @@ func loadPlugins(s web.Service) {
 	s.Handle(rootPath+"/", http.StripPrefix(rootPath+"/", http.FileServer(http.Dir(staticDir))))
 
 	for _, m := range plugins.Plugins() {
-		err := m.Init()
+		err := m.Init(plugins.Client(s.Options().Service.Client()))
 		if err != nil {
 			log.Errorf("plugin [%s] init err: %s", m.Name(), err)
 			continue

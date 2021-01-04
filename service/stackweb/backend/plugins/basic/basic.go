@@ -40,6 +40,14 @@ func (m *basicModule) Path() string {
 }
 
 func (m *basicModule) Init(opts ...plugins.Option) error {
+	options := &plugins.Options{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	m.api = &api{
+		rpcClient: options.Client,
+	}
 	return nil
 }
 
