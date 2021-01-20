@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	ls "github.com/sirupsen/logrus"
+	ls "github.com/stack-labs/stack-rpc-plugins/logger/logrus/logrus"
 	"github.com/stack-labs/stack-rpc-plugins/logger/logrus/lumberjack.v2"
 	"github.com/stack-labs/stack-rpc/logger"
 )

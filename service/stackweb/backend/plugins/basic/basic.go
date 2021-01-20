@@ -46,7 +46,7 @@ func (m *basicModule) Init(opts ...plugins.Option) error {
 	}
 
 	m.api = &api{
-		rpcClient: options.Client,
+		service: options.Service,
 	}
 	return nil
 }
@@ -67,7 +67,7 @@ func (m *basicModule) Handlers() (mp map[string]*plugins.Handler) {
 	}
 
 	mp["/service"] = &plugins.Handler{
-		Func:   m.api.service,
+		Func:   m.api.handler,
 		Method: []string{"GET"},
 	}
 

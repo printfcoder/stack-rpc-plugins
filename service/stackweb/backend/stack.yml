@@ -10,6 +10,9 @@ stack:
     root-path: /stack
     static-dir:
     favicon-ico:
+  registry:
+    name: zookeeper
+    address: 10.177.98.176:2181,10.177.98.177:2181,10.177.98.178:2181
   logger:
     name: slogrus
     level: info

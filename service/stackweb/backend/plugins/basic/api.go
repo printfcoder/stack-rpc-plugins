@@ -10,14 +10,14 @@ import (
 	"strings"
 
 	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic/tools"
-	"github.com/stack-labs/stack-rpc/client"
 	"github.com/stack-labs/stack-rpc/client/selector"
 	"github.com/stack-labs/stack-rpc/pkg/metadata"
 	"github.com/stack-labs/stack-rpc/registry"
+	"github.com/stack-labs/stack-rpc/service"
 )
 
 type api struct {
-	rpcClient client.Client
+	service service.Options
 }
 
 type rpcRequest struct {
@@ -37,7 +37,7 @@ type serviceAPIDetail struct {
 }
 
 func (a *api) webServices(w http.ResponseWriter, r *http.Request) {
-	services, err := a.rpcClient.Options().Registry.ListServices()
+	services, err := a.service.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -61,14 +61,14 @@ func (a *api) webServices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) services(w http.ResponseWriter, r *http.Request) {
-	services, err := a.rpcClient.Options().Registry.ListServices()
+	services, err := a.service.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
 
 	for _, service := range services {
-		ss, err := a.rpcClient.Options().Registry.GetService(service.Name)
+		ss, err := a.service.Registry.GetService(service.Name)
 		if err != nil {
 			continue
 		}
@@ -90,7 +90,7 @@ func (a *api) services(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) microServices(w http.ResponseWriter, r *http.Request) {
-	services, err := a.rpcClient.Options().Registry.ListServices()
+	services, err := a.service.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -99,7 +99,7 @@ func (a *api) microServices(w http.ResponseWriter, r *http.Request) {
 	ret := make([]*registry.Service, 0)
 
 	for _, srv := range services {
-		temp, err := a.rpcClient.Options().Registry.GetService(srv.Name)
+		temp, err := a.service.Registry.GetService(srv.Name)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -122,7 +122,7 @@ func (a *api) microServices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
-	services, err := a.rpcClient.Options().Registry.ListServices()
+	services, err := a.service.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -132,7 +132,7 @@ func (a *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
 
 	serviceDetails := make([]*serviceAPIDetail, 0)
 	for _, service := range services {
-		s, err := a.rpcClient.Options().Registry.GetService(service.Name)
+		s, err := a.service.Registry.GetService(service.Name)
 		if err != nil {
 			continue
 		}
@@ -150,11 +150,11 @@ func (a *api) serviceDetails(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (a *api) service(w http.ResponseWriter, r *http.Request) {
+func (a *api) handler(w http.ResponseWriter, r *http.Request) {
 	serviceName := r.URL.Query().Get("service")
 
 	if len(serviceName) > 0 {
-		s, err := a.rpcClient.Options().Registry.GetService(serviceName)
+		s, err := a.service.Registry.GetService(serviceName)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -173,7 +173,7 @@ func (a *api) service(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
-	services, err := a.rpcClient.Options().Registry.ListServices()
+	services, err := a.service.Registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -181,7 +181,7 @@ func (a *api) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
 
 	ret := make([]*registry.Service, 0)
 	for _, service := range services {
-		_, _ = a.rpcClient.Options().Selector.Next(service.Name, func(options *selector.SelectOptions) {
+		_, _ = a.service.Selector.Next(service.Name, func(options *selector.SelectOptions) {
 			filter := func(services []*registry.Service) []*registry.Service {
 				for _, s := range services {
 					for _, gwN := range GatewayNamespaces {

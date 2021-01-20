@@ -1,12 +1,12 @@
 package main
 
 import (
-	"net/http"
-
+	"github.com/stack-labs/stack-rpc"
 	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins"
 	cfg "github.com/stack-labs/stack-rpc/config"
 	log "github.com/stack-labs/stack-rpc/logger"
-	"github.com/stack-labs/stack-rpc/web"
+	"github.com/stack-labs/stack-rpc/service"
+	"github.com/stack-labs/stack-rpc/service/web"
 
 	_ "github.com/stack-labs/stack-rpc-plugins/logger/logrus"
 	_ "github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic"
@@ -34,11 +34,12 @@ func init() {
 }
 
 func main() {
-	s := web.NewService(
-		web.Name("stack.stackweb"),
+	s := stack.NewWebService(
+		stack.Name("stack.stackweb"),
+		stack.WebHandleFuncs(),
 	)
-	if err := s.Init(web.AfterStart(func() error {
-		loadPlugins(s)
+	if err := s.Init(stack.AfterStart(func() error {
+		loadPlugins(s.Options())
 		return nil
 	})); err != nil {
 		panic(err)
@@ -49,35 +50,20 @@ func main() {
 	}
 }
 
-func loadPlugins(s web.Service) {
-	rootPath := stackwebConfig.Stack.Stackweb.RootPath
-	staticDir := stackwebConfig.Stack.Stackweb.StaticDir
-	apiPath := stackwebConfig.Stack.Stackweb.ApiPath
-	log.Infof("stackweb runs rootPath at %s", rootPath)
-	log.Infof("stackweb deploys staticDir at %s", staticDir)
-	log.Infof("stackweb applies rootPath at %s", apiPath)
-
-	// favicon.ico todo
-	// s.HandleFunc("/favicon.ico", faviconHandler)
-	// static dir
-	s.Handle(rootPath+"/", http.StripPrefix(rootPath+"/", http.FileServer(http.Dir(staticDir))))
-
+func loadPlugins(s service.Options) {
 	for _, m := range plugins.Plugins() {
-		err := m.Init(plugins.Client(s.Options().Service.Client()))
+		err := m.Init(plugins.Service(s))
 		if err != nil {
 			log.Errorf("plugin [%s] init err: %s", m.Name(), err)
 			continue
 		}
 
-		r := m.Path()
 		for k, h := range m.Handlers() {
-			route := rootPath + apiPath + r + k
-
 			if h.IsFunc() {
-				s.HandleFunc(route, h.Func)
-			} else {
-				log.Infof("handler Handle: %s", route)
-				s.Handle(route, h.Hld)
+				web.HandleFuncs(web.HandlerFunc{
+					Route: k,
+					Func:  h.Func,
+				})
 			}
 		}
 	}

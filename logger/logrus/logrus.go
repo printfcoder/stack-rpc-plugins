@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/stack-labs/stack-rpc-plugins/logger/logrus/logrus"
 	"github.com/stack-labs/stack-rpc-plugins/logger/logrus/lumberjack.v2"
 	"github.com/stack-labs/stack-rpc/logger"
 	sLog "github.com/stack-labs/stack-rpc/util/log"
@@ -48,6 +48,32 @@ func (l *logrusLogger) Init(opts ...logger.Option) error {
 
 	if splitLevel, ok := l.opts.Context.Value(splitLevelKey{}).(bool); ok {
 		l.opts.SplitLevel = splitLevel
+	}
+
+	if withoutKey, ok := l.opts.Context.Value(withoutKeyKey{}).(bool); ok {
+		l.opts.WithoutKey = withoutKey
+	}
+
+	if withoutQuote, ok := l.opts.Context.Value(withoutQuoteKey{}).(bool); ok {
+		l.opts.WithoutQuote = withoutQuote
+	}
+
+	if timestampFormat, ok := l.opts.Context.Value(timestampFormat{}).(string); ok {
+		l.opts.TimestampFormat = timestampFormat
+	}
+
+	if l.opts.Formatter != nil {
+		if txtFormatter, ok := l.opts.Formatter.(*logrus.TextFormatter); ok {
+			if l.opts.WithoutKey {
+				txtFormatter.WithoutKey = l.opts.WithoutKey
+			}
+			if l.opts.WithoutQuote {
+				txtFormatter.WithoutQuote = l.opts.WithoutQuote
+			}
+			if len(l.opts.TimestampFormat) > 0 {
+				txtFormatter.TimestampFormat = l.opts.TimestampFormat // "2006-01-02 15:04:05.999"
+			}
+		}
 	}
 
 	if l.opts.Persistence != nil && l.opts.Persistence.Enable && l.opts.Out == nil {
@@ -141,6 +167,8 @@ func (l *logrusLogger) Options() logger.Options {
 
 // New builds a new logger based on options
 func NewLogger(opts ...logger.Option) logger.Logger {
+	formatter := new(logrus.TextFormatter)
+
 	// Default options
 	options := Options{
 		Options: logger.Options{
@@ -148,7 +176,7 @@ func NewLogger(opts ...logger.Option) logger.Logger {
 			Fields:  make(map[string]interface{}),
 			Context: context.Background(),
 		},
-		Formatter:    new(logrus.TextFormatter),
+		Formatter:    formatter,
 		ReportCaller: false,
 		ExitFunc:     os.Exit,
 	}
