@@ -37,7 +37,10 @@ func (l *logrusLogPlugin) Options() []logger.Option {
 	opts = append(opts, ReportCaller(lc.ReportCaller))
 	opts = append(opts, WithoutKey(lc.WithoutKey))
 	opts = append(opts, WithoutQuote(lc.WithoutQuote))
-	opts = append(opts, TimestampFormat(lc.TimestampFormat))
+
+	if len(lc.TimestampFormat) > 0 {
+		opts = append(opts, TimestampFormat(lc.TimestampFormat))
+	}
 
 	switch lc.Formatter {
 	case "text":
