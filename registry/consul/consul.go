@@ -13,6 +13,7 @@ import (
 
 	consul "github.com/hashicorp/consul/api"
 	hash "github.com/mitchellh/hashstructure"
+	"github.com/stack-labs/stack-rpc/plugin"
 	"github.com/stack-labs/stack-rpc/registry"
 	mnet "github.com/stack-labs/stack-rpc/util/net"
 )
@@ -33,6 +34,10 @@ type consulRegistry struct {
 	register map[string]uint64
 	// lastChecked tracks when a node was last checked as existing in Consul
 	lastChecked map[string]time.Time
+}
+
+func init() {
+	plugin.RegistryPlugins["consul"] = &consulRegistryPlugin{}
 }
 
 func getDeregisterTTL(t time.Duration) time.Duration {
