@@ -38,7 +38,7 @@ func (a *api) rpcCall(w http.ResponseWriter, ctx context.Context, rpcReq *rpcReq
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := a.rpcClient.NewRequest(rpcReq.Service, rpcReq.Endpoint, rpcReq.Request, client.WithContentType("application/json"))
+	req := a.service.Client.NewRequest(rpcReq.Service, rpcReq.Endpoint, rpcReq.Request, client.WithContentType("application/json"))
 
 	var opts []client.CallOption
 
@@ -53,7 +53,7 @@ func (a *api) rpcCall(w http.ResponseWriter, ctx context.Context, rpcReq *rpcReq
 	}
 
 	// remote call
-	err = a.rpcClient.Call(ctx, req, &response, opts...)
+	err = a.service.Client.Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {

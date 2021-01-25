@@ -1,15 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"github.com/stack-labs/stack-rpc/util/log"
+
 	"github.com/stack-labs/stack-rpc"
+	_ "github.com/stack-labs/stack-rpc-plugins/logger/logrus"
 	"github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins"
+	_ "github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic"
 	cfg "github.com/stack-labs/stack-rpc/config"
-	log "github.com/stack-labs/stack-rpc/logger"
 	"github.com/stack-labs/stack-rpc/service"
 	"github.com/stack-labs/stack-rpc/service/web"
-
-	_ "github.com/stack-labs/stack-rpc-plugins/logger/logrus"
-	_ "github.com/stack-labs/stack-rpc-plugins/service/stackweb/plugins/basic"
 )
 
 type config struct {
@@ -36,11 +37,11 @@ func init() {
 func main() {
 	s := stack.NewWebService(
 		stack.Name("stack.stackweb"),
-		stack.WebHandleFuncs(),
+		stack.Address(":8090"),
+		stack.WebHandleFuncs(handlers()...),
 	)
 	if err := s.Init(stack.AfterStart(func() error {
-		loadPlugins(s.Options())
-		return nil
+		return loadPlugins(s.Options())
 	})); err != nil {
 		panic(err)
 	}
@@ -50,21 +51,30 @@ func main() {
 	}
 }
 
-func loadPlugins(s service.Options) {
+func handlers() []web.HandlerFunc {
+	handlers := make([]web.HandlerFunc, 0)
 	for _, m := range plugins.Plugins() {
-		err := m.Init(plugins.Service(s))
-		if err != nil {
-			log.Errorf("plugin [%s] init err: %s", m.Name(), err)
-			continue
-		}
-
 		for k, h := range m.Handlers() {
 			if h.IsFunc() {
-				web.HandleFuncs(web.HandlerFunc{
+				log.Infof("register handler: %s", k)
+				handlers = append(handlers, web.HandlerFunc{
 					Route: k,
 					Func:  h.Func,
 				})
 			}
 		}
 	}
+
+	return handlers
+}
+
+func loadPlugins(s service.Options) (err error) {
+	for _, m := range plugins.Plugins() {
+		err := m.Init(plugins.Service(s))
+		if err != nil {
+			return fmt.Errorf("plugin [%s] init err: %s", m.Name(), err)
+		}
+	}
+
+	return nil
 }

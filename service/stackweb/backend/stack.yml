@@ -1,13 +1,13 @@
 stack:
+  server:
+    name: stack.web.stackweb
+    address: 127.0.0.1:8082
   config:
     hierarchy-merge: true
     storege: false
-  stackweb:
-    name: stack.web.stackweb
-    address: 127.0.0.1
-    port: 8082
-    api-path: /api/v1
+  web:
     root-path: /stack
+    api-path: /api/v1
     static-dir:
     favicon-ico:
   registry:
