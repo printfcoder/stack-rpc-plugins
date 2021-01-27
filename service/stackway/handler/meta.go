@@ -3,12 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/stack-labs/stack-rpc"
 	"github.com/stack-labs/stack-rpc/api/handler"
 	"github.com/stack-labs/stack-rpc/api/handler/event"
 	"github.com/stack-labs/stack-rpc/api/router"
+	"github.com/stack-labs/stack-rpc/service"
 	"github.com/stack-labs/stack-rpc/util/errors"
-
 	// TODO: only import handler package
 	aapi "github.com/stack-labs/stack-rpc/api/handler/api"
 	ahttp "github.com/stack-labs/stack-rpc/api/handler/http"
@@ -17,7 +16,7 @@ import (
 )
 
 type metaHandler struct {
-	s stack.Service
+	s service.Service
 	r router.Router
 }
 
@@ -59,7 +58,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Meta is a http.Handler that routes based on endpoint metadata
-func Meta(s stack.Service, r router.Router) http.Handler {
+func Meta(s service.Service, r router.Router) http.Handler {
 	return &metaHandler{
 		s: s,
 		r: r,

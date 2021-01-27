@@ -3,10 +3,11 @@ package api
 import (
 	"github.com/stack-labs/stack-rpc"
 	"github.com/stack-labs/stack-rpc/pkg/cli"
+	"github.com/stack-labs/stack-rpc/service"
 )
 
 // api stackway options
-func Options() (options []stack.Option) {
+func Options() (options []service.Option) {
 	flags := []cli.Flag{
 		cli.StringFlag{
 			Name:   "stackway_name",

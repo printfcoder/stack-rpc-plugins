@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stack-labs/stack-rpc"
-	"github.com/stack-labs/stack-rpc/client"
-	"github.com/stack-labs/stack-rpc/util/errors"
-
 	"github.com/stack-labs/stack-rpc-plugins/service/stackway/helper"
+	"github.com/stack-labs/stack-rpc/client"
+	"github.com/stack-labs/stack-rpc/service"
+	"github.com/stack-labs/stack-rpc/util/errors"
 )
 
 type rpcRequest struct {
@@ -23,10 +22,10 @@ type rpcRequest struct {
 }
 
 type rpcHandler struct {
-	opts stack.Options
+	opts service.Options
 }
 
-func NewRPCHandlerFunc(opts stack.Options) http.HandlerFunc {
+func NewRPCHandlerFunc(opts service.Options) http.HandlerFunc {
 	rpc := rpcHandler{opts: opts}
 	return rpc.Handler
 }

@@ -6,6 +6,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/stack-labs/stack-rpc"
+	"github.com/stack-labs/stack-rpc-plugins/service/stackway/handler"
+	"github.com/stack-labs/stack-rpc-plugins/service/stackway/helper"
+	"github.com/stack-labs/stack-rpc-plugins/service/stackway/plugin"
+	gwServer "github.com/stack-labs/stack-rpc-plugins/service/stackway/server"
 	ahandler "github.com/stack-labs/stack-rpc/api/handler"
 	aapi "github.com/stack-labs/stack-rpc/api/handler/api"
 	"github.com/stack-labs/stack-rpc/api/handler/event"
@@ -23,12 +27,8 @@ import (
 	"github.com/stack-labs/stack-rpc/api/server/acme"
 	"github.com/stack-labs/stack-rpc/api/server/acme/autocert"
 	httpapi "github.com/stack-labs/stack-rpc/api/server/http"
+	"github.com/stack-labs/stack-rpc/service"
 	"github.com/stack-labs/stack-rpc/util/log"
-
-	"github.com/stack-labs/stack-rpc-plugins/service/stackway/handler"
-	"github.com/stack-labs/stack-rpc-plugins/service/stackway/helper"
-	"github.com/stack-labs/stack-rpc-plugins/service/stackway/plugin"
-	gwServer "github.com/stack-labs/stack-rpc-plugins/service/stackway/server"
 )
 
 type config struct {
@@ -87,11 +87,11 @@ func newDefaultConfig() *config {
 }
 
 type httpServer struct {
-	svc stack.Service
+	svc service.Service
 	api apiServer.Server
 }
 
-func (s *httpServer) Options() []stack.Option {
+func (s *httpServer) Options() []service.Option {
 	opts := Options()
 	opts = append(
 		opts,
@@ -307,6 +307,6 @@ func (s *httpServer) Stop() error {
 	return s.api.Stop()
 }
 
-func NewServer(svc stack.Service) *httpServer {
+func NewServer(svc service.Service) *httpServer {
 	return &httpServer{svc: svc}
 }

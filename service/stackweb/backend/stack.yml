@@ -1,18 +1,18 @@
 stack:
+  service:
+    name: stack.rpc.stackweb
+    web:
+      root-path: /stack
+      static:
+        route: webapp
+        dir: static
+        # todo
+        favicon-ico:
   server:
-    name: stack.web.stackweb
-    address: 127.0.0.1:8082
+    address: :8090
   config:
     hierarchy-merge: true
     storege: false
-  web:
-    root-path: /stack
-    api-path: /api/v1
-    static-dir:
-    favicon-ico:
-  registry:
-    name: zookeeper
-    address: 10.177.98.176:2181,10.177.98.177:2181,10.177.98.178:2181
   logger:
-    name: slogrus
+    name: console
     level: info

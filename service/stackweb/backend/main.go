@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/stack-labs/stack-rpc/util/log"
 
 	"github.com/stack-labs/stack-rpc"
 	_ "github.com/stack-labs/stack-rpc-plugins/logger/logrus"
@@ -36,7 +35,7 @@ func init() {
 
 func main() {
 	s := stack.NewWebService(
-		stack.Name("stack.stackweb"),
+		stack.Name("stack.rpc.stackweb"),
 		stack.Address(":8090"),
 		stack.WebHandleFuncs(handlers()...),
 	)
@@ -56,7 +55,6 @@ func handlers() []web.HandlerFunc {
 	for _, m := range plugins.Plugins() {
 		for k, h := range m.Handlers() {
 			if h.IsFunc() {
-				log.Infof("register handler: %s", k)
 				handlers = append(handlers, web.HandlerFunc{
 					Route: k,
 					Func:  h.Func,
